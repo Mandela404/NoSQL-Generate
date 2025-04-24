@@ -375,9 +375,6 @@ function addWatermarkToPDF(doc) {
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         
-        // Save current state
-        doc.saveGraphicsState();
-        
         // Set watermark properties
         doc.setTextColor(230, 230, 230);
         doc.setFontSize(30);
@@ -387,10 +384,30 @@ function addWatermarkToPDF(doc) {
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         
-        // Rotate and position watermark
-        doc.translate(pageWidth / 2, pageHeight / 2);
-        doc.rotate(-45);
-        doc.text('Mandela404', 0, 0, { align: 'center' });
+        // Apply transformation matrix for rotation
+        // We need to use transform instead of translate/rotate in newer jsPDF versions
+        const centerX = pageWidth / 2;
+        const centerY = pageHeight / 2;
+        
+        // Save the current state
+        doc.saveGraphicsState();
+        
+        // Apply transformation matrix for 45-degree rotation around center
+        // Parameters for transform: (a, b, c, d, e, f) where
+        // a, d = scale; b, c = shear; e, f = translate
+        const angle = -45 * Math.PI / 180; // Convert degrees to radians
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        
+        // Move to center, rotate, then draw text
+        doc.transform(
+            cos, sin,    // a, b
+            -sin, cos,   // c, d
+            centerX, centerY  // e, f (translation)
+        );
+        
+        // Draw text at origin (which is now at the center of the page)
+        doc.text('Mandela404', 0, 0, { align: 'center', baseline: 'middle' });
         
         // Add GitHub URL
         doc.setFontSize(12);
