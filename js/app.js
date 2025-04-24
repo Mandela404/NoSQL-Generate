@@ -18,6 +18,7 @@ import { showNotification, initNotifications } from './notifications.js';
 import { initModal, showModal } from './modal.js';
 import { saveSettings, loadSettings, initSettings } from './settings.js';
 import { downloadFile } from './utils.js';
+import { initI18n, translate, setLanguage, getCurrentLanguage, translatePage } from './i18n.js';
 
 // Application state
 const appState = {
@@ -26,6 +27,7 @@ const appState = {
     jsonData: null,
     nosqlData: null,
     settings: null,
+    language: null,
     initialized: false
 };
 
@@ -43,6 +45,10 @@ function initApp() {
     initNotifications();
     initModal();
     initLogger();
+    
+    // Initialize internationalization
+    initI18n();
+    appState.language = getCurrentLanguage();
     
     // Initialize functional modules
     initJsonFormatter();
@@ -70,6 +76,16 @@ function initApp() {
  * Set up all event listeners for the application
  */
 function setupEventListeners() {
+    // Language change event listener
+    document.addEventListener('language-changed', handleLanguageChange);
+    
+    // Language selector change
+    const languageSelector = document.getElementById('language-selector');
+    if (languageSelector) {
+        languageSelector.addEventListener('change', (event) => {
+            setLanguage(event.target.value);
+        });
+    }
     logInfo('Setting up event listeners...');
     
     // Sidebar navigation
@@ -125,6 +141,59 @@ function setupEventListeners() {
     document.getElementById('include-metadata').addEventListener('change', handleSettingChange);
     
     logSuccess('Event listeners set up successfully');
+}
+
+/**
+ * Handle language change event
+ * @param {CustomEvent} event - The language change event
+ */
+function handleLanguageChange(event) {
+    const { language } = event.detail;
+    appState.language = language;
+    
+    // Update section title
+    updateSectionTitle();
+    
+    logInfo(`Language changed to: ${language}`);
+    
+    // Show notification
+    showNotification({
+        type: 'success',
+        message: translate('common.languageChanged', { language: language }),
+        duration: 3000
+    });
+}
+
+/**
+ * Update section title based on current section and language
+ */
+function updateSectionTitle() {
+    const sectionTitle = document.getElementById('section-title');
+    if (!sectionTitle) return;
+    
+    let titleKey = '';
+    
+    switch (appState.currentSection) {
+        case 'json-formatter':
+            titleKey = 'json.title';
+            break;
+        case 'nosql-generator':
+            titleKey = 'nosql.title';
+            break;
+        case 'pdf-generator':
+            titleKey = 'pdf.title';
+            break;
+        case 'security-tools':
+            titleKey = 'security.title';
+            break;
+        case 'settings':
+            titleKey = 'settings.title';
+            break;
+        default:
+            titleKey = 'json.title';
+    }
+    
+    sectionTitle.textContent = translate(titleKey);
 }
 
 /**
@@ -613,5 +682,7 @@ document.addEventListener('DOMContentLoaded', initApp);
 export {
     appState,
     navigateToSection,
-    applyTheme
+    applyTheme,
+    handleLanguageChange,
+    updateSectionTitle
 };

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoSQL Generator MVP</title>
+    
+    <!-- CDNs externos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- CSS do projeto (via GitHub) -->
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/Mandela404/NoSQL-Generate/main/css/mvp-styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="header-title">
+                <h1>NoSQL Generator <span>MVP</span></h1>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn btn-icon">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+        
+        <div class="tab-container">
+            <ul class="tabs">
+                <li class="tab active" data-tab="json-formatter">
+                    <i class="fas fa-code"></i> JSON Formatter
+                </li>
+                <li class="tab" data-tab="nosql-generator">
+                    <i class="fas fa-database"></i> NoSQL Generator
+                </li>
+                <li class="tab" data-tab="security-tools">
+                    <i class="fas fa-shield-alt"></i> Security Tools
+                </li>
+            </ul>
+            
+            <!-- JSON Formatter Tab -->
+            <div id="json-formatter" class="tab-content active">
+                <div class="action-buttons">
+                    <button id="format-json" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> Format
+                    </button>
+                    <button id="clear-json" class="btn btn-secondary">
+                        <i class="fas fa-eraser"></i> Clear
+                    </button>
+                    <button id="copy-json" class="btn btn-secondary">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="editor-container">
+                    <div class="input-container">
+                        <h4>Input JSON</h4>
+                        <textarea id="json-input" placeholder="Paste your JSON here..."></textarea>
+                    </div>
+                    <div class="output-container">
+                        <h4>Formatted JSON</h4>
+                        <pre id="json-output"></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- NoSQL Generator Tab -->
+            <div id="nosql-generator" class="tab-content">
+                <div class="action-buttons">
+                    <button id="generate-nosql" class="btn btn-primary">
+                        <i class="fas fa-bolt"></i> Generate
+                    </button>
+                    <button id="copy-nosql" class="btn btn-secondary">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="options-container">
+                    <div class="option-group">
+                        <h4>Database Type</h4>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="db-type" value="mongodb" checked>
+                                <span>MongoDB</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="db-type" value="firebase">
+                                <span>Firebase</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="db-type" value="dynamodb">
+                                <span>DynamoDB</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <h4>Document Structure</h4>
+                        <select id="doc-structure">
+                            <option value="nested">Nested Documents</option>
+                            <option value="flat">Flat Structure</option>
+                            <option value="references">With References</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <h4>Options</h4>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="add-ids" checked>
+                                <span>Add IDs</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="add-timestamps">
+                                <span>Add Timestamps</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="output-container">
+                    <h4>NoSQL Output</h4>
+                    <pre id="nosql-output"></pre>
+                </div>
+            </div>
+            
+            <!-- Security Tools Tab -->
+            <div id="security-tools" class="tab-content">
+                <div class="security-options">
+                    <div class="option-group">
+                        <h4>Operation</h4>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="security-op" value="hash" checked>
+                                <span>Generate Hash</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="security-op" value="encrypt">
+                                <span>Encrypt</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="security-op" value="decrypt">
+                                <span>Decrypt</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <h4>Algorithm</h4>
+                        <select id="security-algorithm">
+                            <option value="md5">MD5</option>
+                            <option value="sha1">SHA-1</option>
+                            <option value="sha256" selected>SHA-256</option>
+                            <option value="sha512">SHA-512</option>
+                            <option value="aes" class="crypto-only">AES</option>
+                        </select>
+                    </div>
+                    <div class="option-group crypto-key-group" style="display:none;">
+                        <h4>Encryption Key</h4>
+                        <input type="text" id="crypto-key" placeholder="Enter encryption key">
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <div class="input-container">
+                        <h4>Input Text</h4>
+                        <textarea id="security-input" placeholder="Enter text to process..."></textarea>
+                    </div>
+                    <div class="output-container">
+                        <h4>Output</h4>
+                        <pre id="security-output"></pre>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="process-security" class="btn btn-primary">
+                        <i class="fas fa-cog"></i> Process
+                    </button>
+                    <button id="copy-security" class="btn btn-secondary">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Created by <a href="https://github.com/Mandela404" target="_blank">Mandela404</a> | <a href="https://github.com/Mandela404/NoSQL-Generate" target="_blank">GitHub Repository</a></p>
+        </footer>
+    </div>
+    
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+    
+    <!-- Scripts do projeto (via GitHub) -->
+    <script src="https://raw.githubusercontent.com/Mandela404/NoSQL-Generate/main/js/mvp-app.js"></script>
+</body>
+</html>
