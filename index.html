@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>JSON Transformer Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Editor JSON -->
+        <div class="editor-section">
+            <h2><i class="fas fa-code"></i> Editor JSON</h2>
+            <textarea id="jsonInput" placeholder='{"exemplo": "dados"}'></textarea>
+            <button onclick="validateJSON()" class="btn-validate">Validar JSON</button>
+        </div>
+
+        <!-- Opções NoSQL -->
+        <div class="options-section">
+            <div class="nosql-options">
+                <h3><i class="fas fa-database"></i> Gerar NoSQL</h3>
+                <select id="nosqlType">
+                    <option value="mongodb">MongoDB</option>
+                    <option value="cassandra">Cassandra</option>
+                    <option value="firestore">Firestore</option>
+                    <option value="dynamodb">DynamoDB</option>
+                </select>
+                <button onclick="generateNoSQL()" class="btn-generate">Gerar</button>
+            </div>
+
+            <!-- Hash Generator -->
+            <div class="hash-options">
+                <h3><i class="fas fa-lock"></i> Hash Security</h3>
+                <select id="hashAlgorithm">
+                    <option value="MD5">MD5</option>
+                    <option value="SHA1">SHA-1</option>
+                    <option value="SHA256">SHA-256</option>
+                </select>
+                <button onclick="generateHash()" class="btn-generate">Gerar Hash</button>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div class="output-section">
+            <div class="nosql-output">
+                <h3>NoSQL Gerado <button onclick="copyNoSQL()"><i class="fas fa-copy"></i></button></h3>
+                <pre id="nosqlResult"></pre>
+            </div>
+            
+            <div class="hash-output">
+                <h3>Hash Resultante <button onclick="copyHash()"><i class="fas fa-copy"></i></button></h3>
+                <pre id="hashResult"></pre>
+            </div>
+        </div>
+
+        <!-- Controles PDF -->
+        <div class="pdf-controls">
+            <button onclick="generatePDF()" class="btn-pdf">
+                <i class="fas fa-file-pdf"></i> Exportar para PDF
+            </button>
+        </div>
+
+        <!-- Aviso -->
+        <div class="warning-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Recursos Avançados:</strong> Use o modo NoSQL para conversão estrutural inteligente.
+                Hashes usam criptografia segura no cliente.
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
