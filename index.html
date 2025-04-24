@@ -1,78 +1,427 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>JSON Transformer Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoSQL Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
-
 <body>
-    <div class="container">
-        <!-- Editor JSON -->
-        <div class="editor-section">
-            <h2><i class="fas fa-code"></i> Editor JSON</h2>
-            <textarea id="jsonInput" placeholder='{"exemplo": "dados"}'></textarea>
-            <button onclick="validateJSON()" class="btn-validate">Validar JSON</button>
-        </div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://raw.githubusercontent.com/Mandela404/profile/main/logo.png" alt="Logo" class="logo" onerror="this.src='https://via.placeholder.com/50?text=M404'">
+                <h1>NoSQL<span>Generator</span></h1>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active" data-section="json-formatter">
+                    <i class="fas fa-code"></i>
+                    <span>JSON Formatter</span>
+                </li>
+                <li data-section="nosql-generator">
+                    <i class="fas fa-database"></i>
+                    <span>NoSQL Generator</span>
+                </li>
+                <li data-section="pdf-generator">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>PDF Export</span>
+                </li>
+                <li data-section="security-tools">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Security Tools</span>
+                </li>
+                <li data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="https://github.com/Mandela404" target="_blank">
+                    <i class="fab fa-github"></i>
+                    <span>Mandela404</span>
+                </a>
+            </div>
+        </nav>
 
-        <!-- Opções NoSQL -->
-        <div class="options-section">
-            <div class="nosql-options">
-                <h3><i class="fas fa-database"></i> Gerar NoSQL</h3>
-                <select id="nosqlType">
-                    <option value="mongodb">MongoDB</option>
-                    <option value="cassandra">Cassandra</option>
-                    <option value="firestore">Firestore</option>
-                    <option value="dynamodb">DynamoDB</option>
-                </select>
-                <button onclick="generateNoSQL()" class="btn-generate">Gerar</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-title">
+                    <h2 id="section-title">JSON Formatter</h2>
+                </div>
+                <div class="header-actions">
+                    <button id="cmd-log-toggle" class="btn btn-secondary">
+                        <i class="fas fa-terminal"></i>
+                        <span>CMD Log</span>
+                    </button>
+                    <button id="theme-toggle" class="btn btn-icon">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CMD Log Panel -->
+            <div id="cmd-log-panel" class="cmd-log-panel">
+                <div class="cmd-log-header">
+                    <h3><i class="fas fa-terminal"></i> Command Log</h3>
+                    <button id="cmd-log-close" class="btn-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="cmd-log-content" class="cmd-log-content"></div>
             </div>
 
-            <!-- Hash Generator -->
-            <div class="hash-options">
-                <h3><i class="fas fa-lock"></i> Hash Security</h3>
-                <select id="hashAlgorithm">
-                    <option value="MD5">MD5</option>
-                    <option value="SHA1">SHA-1</option>
-                    <option value="SHA256">SHA-256</option>
-                </select>
-                <button onclick="generateHash()" class="btn-generate">Gerar Hash</button>
-            </div>
-        </div>
+            <!-- Content Sections -->
+            <div class="content-container">
+                <!-- JSON Formatter Section -->
+                <section id="json-formatter" class="content-section active">
+                    <div class="section-header">
+                        <h3>Format and Validate JSON</h3>
+                        <div class="action-buttons">
+                            <button id="format-json" class="btn btn-primary">
+                                <i class="fas fa-magic"></i> Format
+                            </button>
+                            <button id="clear-json" class="btn btn-secondary">
+                                <i class="fas fa-eraser"></i> Clear
+                            </button>
+                            <button id="copy-json" class="btn btn-secondary">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="download-json" class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="json-editor-container">
+                        <div class="json-input-container">
+                            <h4>Input JSON</h4>
+                            <textarea id="json-input" placeholder="Paste your JSON here..."></textarea>
+                        </div>
+                        <div class="json-output-container">
+                            <h4>Formatted JSON</h4>
+                            <pre id="json-output"></pre>
+                        </div>
+                    </div>
+                </section>
 
-        <!-- Resultados -->
-        <div class="output-section">
-            <div class="nosql-output">
-                <h3>NoSQL Gerado <button onclick="copyNoSQL()"><i class="fas fa-copy"></i></button></h3>
-                <pre id="nosqlResult"></pre>
-            </div>
-            
-            <div class="hash-output">
-                <h3>Hash Resultante <button onclick="copyHash()"><i class="fas fa-copy"></i></button></h3>
-                <pre id="hashResult"></pre>
-            </div>
-        </div>
+                <!-- NoSQL Generator Section -->
+                <section id="nosql-generator" class="content-section">
+                    <div class="section-header">
+                        <h3>Generate NoSQL Documents</h3>
+                        <div class="action-buttons">
+                            <button id="generate-nosql" class="btn btn-primary">
+                                <i class="fas fa-bolt"></i> Generate
+                            </button>
+                            <button id="copy-nosql" class="btn btn-secondary">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button id="download-nosql" class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="nosql-container">
+                        <div class="nosql-options">
+                            <div class="option-group">
+                                <h4>Database Type</h4>
+                                <div class="radio-group">
+                                    <label>
+                                        <input type="radio" name="db-type" value="mongodb" checked>
+                                        <span>MongoDB</span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="db-type" value="couchdb">
+                                        <span>CouchDB</span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="db-type" value="firebase">
+                                        <span>Firebase</span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="db-type" value="dynamodb">
+                                        <span>DynamoDB</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="option-group">
+                                <h4>Document Structure</h4>
+                                <div class="select-wrapper">
+                                    <select id="doc-structure">
+                                        <option value="nested">Nested Documents</option>
+                                        <option value="flat">Flat Structure</option>
+                                        <option value="references">With References</option>
+                                        <option value="arrays">Array-based</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="option-group">
+                                <h4>Advanced Options</h4>
+                                <div class="checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="add-timestamps">
+                                        <span>Add Timestamps</span>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" id="add-ids">
+                                        <span>Generate IDs</span>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" id="add-indexes">
+                                        <span>Suggest Indexes</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nosql-preview">
+                            <h4>NoSQL Output</h4>
+                            <pre id="nosql-output"></pre>
+                        </div>
+                    </div>
+                </section>
 
-        <!-- Controles PDF -->
-        <div class="pdf-controls">
-            <button onclick="generatePDF()" class="btn-pdf">
-                <i class="fas fa-file-pdf"></i> Exportar para PDF
-            </button>
-        </div>
+                <!-- PDF Generator Section -->
+                <section id="pdf-generator" class="content-section">
+                    <div class="section-header">
+                        <h3>Export to PDF</h3>
+                        <div class="action-buttons">
+                            <button id="preview-pdf" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> Preview
+                            </button>
+                            <button id="generate-pdf" class="btn btn-secondary">
+                                <i class="fas fa-file-pdf"></i> Generate PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pdf-container">
+                        <div class="pdf-options">
+                            <div class="option-group">
+                                <h4>PDF Options</h4>
+                                <div class="form-group">
+                                    <label for="pdf-title">Document Title</label>
+                                    <input type="text" id="pdf-title" placeholder="NoSQL Data Export">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pdf-author">Author</label>
+                                    <input type="text" id="pdf-author" placeholder="Generated by NoSQL Generator">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pdf-orientation">Page Orientation</label>
+                                    <div class="select-wrapper">
+                                        <select id="pdf-orientation">
+                                            <option value="portrait">Portrait</option>
+                                            <option value="landscape">Landscape</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="checkbox-group">
+                                    <label>
+                                        <input type="checkbox" id="include-timestamp" checked>
+                                        <span>Include Timestamp</span>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" id="include-watermark" checked>
+                                        <span>Include Watermark</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pdf-preview">
+                            <h4>PDF Preview</h4>
+                            <div id="pdf-preview-container" class="pdf-preview-container">
+                                <div class="pdf-placeholder">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <p>Generate a preview to see your PDF</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-        <!-- Aviso -->
-        <div class="warning-box">
-            <i class="fas fa-exclamation-triangle"></i>
-            <div>
-                <strong>Recursos Avançados:</strong> Use o modo NoSQL para conversão estrutural inteligente.
-                Hashes usam criptografia segura no cliente.
+                <!-- Security Tools Section -->
+                <section id="security-tools" class="content-section">
+                    <div class="section-header">
+                        <h3>Security & Encryption Tools</h3>
+                    </div>
+                    <div class="security-container">
+                        <div class="security-options">
+                            <div class="option-group">
+                                <h4>Hash Generator</h4>
+                                <div class="form-group">
+                                    <label for="hash-input">Input Text</label>
+                                    <textarea id="hash-input" placeholder="Enter text to hash..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="hash-algorithm">Algorithm</label>
+                                    <div class="select-wrapper">
+                                        <select id="hash-algorithm">
+                                            <option value="md5">MD5</option>
+                                            <option value="sha1">SHA-1</option>
+                                            <option value="sha256" selected>SHA-256</option>
+                                            <option value="sha512">SHA-512</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button id="generate-hash" class="btn btn-primary">
+                                    <i class="fas fa-key"></i> Generate Hash
+                                </button>
+                            </div>
+                            <div class="option-group">
+                                <h4>Encryption</h4>
+                                <div class="form-group">
+                                    <label for="encryption-input">Input Text</label>
+                                    <textarea id="encryption-input" placeholder="Enter text to encrypt..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="encryption-key">Encryption Key</label>
+                                    <input type="text" id="encryption-key" placeholder="Enter encryption key">
+                                </div>
+                                <div class="form-group">
+                                    <label for="encryption-algorithm">Algorithm</label>
+                                    <div class="select-wrapper">
+                                        <select id="encryption-algorithm">
+                                            <option value="aes">AES</option>
+                                            <option value="des">DES</option>
+                                            <option value="tripledes">Triple DES</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button id="encrypt-data" class="btn btn-primary">
+                                        <i class="fas fa-lock"></i> Encrypt
+                                    </button>
+                                    <button id="decrypt-data" class="btn btn-secondary">
+                                        <i class="fas fa-unlock"></i> Decrypt
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="security-results">
+                            <h4>Results</h4>
+                            <div class="result-group">
+                                <label>Hash Output</label>
+                                <div class="result-container">
+                                    <pre id="hash-output"></pre>
+                                    <button id="copy-hash" class="btn-copy">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="result-group">
+                                <label>Encryption Output</label>
+                                <div class="result-container">
+                                    <pre id="encryption-output"></pre>
+                                    <button id="copy-encryption" class="btn-copy">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <div class="section-header">
+                        <h3>Application Settings</h3>
+                    </div>
+                    <div class="settings-container">
+                        <div class="settings-group">
+                            <h4>Appearance</h4>
+                            <div class="form-group">
+                                <label for="theme-select">Theme</label>
+                                <div class="select-wrapper">
+                                    <select id="theme-select">
+                                        <option value="light">Light</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="system">System Default</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="font-size">Font Size</label>
+                                <div class="range-slider">
+                                    <input type="range" id="font-size" min="12" max="20" value="14">
+                                    <span id="font-size-value">14px</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h4>Editor Settings</h4>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="auto-format" checked>
+                                    <span>Auto-format on paste</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="line-numbers" checked>
+                                    <span>Show line numbers</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="syntax-highlight" checked>
+                                    <span>Syntax highlighting</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h4>Export Settings</h4>
+                            <div class="form-group">
+                                <label for="default-filename">Default Filename</label>
+                                <input type="text" id="default-filename" value="nosql_export">
+                            </div>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="include-metadata" checked>
+                                    <span>Include metadata in exports</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h4>About</h4>
+                            <div class="about-info">
+                                <p><strong>NoSQL Generator</strong> v1.0.0</p>
+                                <p>Created by <a href="https://github.com/Mandela404" target="_blank">Mandela404</a></p>
+                                <p>A powerful tool for JSON formatting, NoSQL generation, and security operations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Modal System -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="modal-container" class="modal-container">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal Title</h3>
+                <button id="modal-close" class="btn-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="modal-content" class="modal-content"></div>
+            <div id="modal-footer" class="modal-footer">
+                <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="modal-confirm" class="btn btn-primary">Confirm</button>
             </div>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- CryptoJS CDN for encryption/hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
